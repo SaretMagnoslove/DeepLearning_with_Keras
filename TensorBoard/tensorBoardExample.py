@@ -9,7 +9,7 @@ import pickle
 
 # Naming the model and adding a time stump
 
-NAME = "Cats-vs-dogs-CNN"
+NAME = "Cats-vs-dogs-CNN-No-Dense"
 # Adding TensorBoard
 
 tensorboard = TensorBoard(log_dir=f'logs/{NAME}')
@@ -34,8 +34,8 @@ model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2,2)))
 
 model.add(Flatten())
-model.add(Dense(64))
-model.add(Activation('relu'))
+# model.add(Dense(64))
+# model.add(Activation('relu'))
 
 model.add(Dense(1))
 model.add(Activation('sigmoid'))
