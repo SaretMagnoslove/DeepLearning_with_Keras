@@ -13,14 +13,14 @@ y = pickle.load(open('y.pickle', 'rb'))
 X = X/255.00
 
 # Naming the models
-dense_layers = [0,1,2]
-layer_sizes = [32,64,128]
-conv_layers = [1,2,3]
+dense_layers = [0]
+layer_sizes = [64]
+conv_layers = [3]
 
 for dense_layer in dense_layers:
     for layer_size in layer_sizes:
         for conv_layer in conv_layers:
-            NAME = f"{conv_layer}-conv-{layer_size}-nodes-{dense_layer}-dense"
+            NAME = f"{conv_layer}-conv-{layer_size}-nodes-{dense_layer}-dense-512DO"
             # Adding TensorBoard
             tensorboard = TensorBoard(log_dir=f'logs/{NAME}')
             # Building the Model
@@ -36,9 +36,11 @@ for dense_layer in dense_layers:
                 model.add(MaxPooling2D(pool_size=(2,2)))
 
             model.add(Flatten())
+
             for l in range(dense_layer):
-                model.add(Dense(layer_size))
+                model.add(Dense(512))
                 model.add(Activation('relu'))
+                model.add(Dropout(0.2))
 
             model.add(Dense(1))
             model.add(Activation('sigmoid'))
