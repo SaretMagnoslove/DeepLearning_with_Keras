@@ -109,3 +109,4 @@ venv.bak/
 *.jpg
 *.gz
 *.npy
+*.model

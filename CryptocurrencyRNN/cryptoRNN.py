@@ -3,11 +3,19 @@ from sklearn import preprocessing
 from collections import deque
 import numpy as np
 import random
+import time
+import tensorflow as tf 
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Dropout, LSTM, CuDNNLSTM, BatchNormalization
+from tensorflow.keras.callbacks import TensorBoard, ModelCheckpoint
 
 # defining the constants
 SEQ_LEN = 60
 FUTURE_PERIOD_PREDICT = 3
-RATIO_TO_PREDICT = 'LTC-USD'
+RATIO_TO_PREDICT = 'BTC-USD'
+EPOCHS = 10
+BATCH_SIZE = 64
+NAME = F"{RATIO_TO_PREDICT}-{SEQ_LEN}-SEQ-{FUTURE_PERIOD_PREDICT}-PRED-{int(time.time())}"
 
 
 # helper function for labeling the data
@@ -95,4 +103,40 @@ print(f"train data: {len(train_x)} validation: {len(validation_x)}")
 print(f"Dont buys: {train_y.count(0)}, buys: {train_y.count(1)}")
 print(
     f"VALIDATION Dont buys: {validation_y.count(0)}, buys: {validation_y.count(1)}"
+)
+# building the model
+model = Sequential()
+model.add(CuDNNLSTM(128, input_shape=train_x.shape[1:], return_sequences=True))
+model.add(Dropout(0.2))
+model.add(BatchNormalization())
+
+model.add(CuDNNLSTM(128, input_shape=train_x.shape[1:], return_sequences=True))
+model.add(Dropout(0.1))
+model.add(BatchNormalization())
+
+model.add(CuDNNLSTM(128, input_shape=train_x.shape[1:]))
+model.add(Dropout(0.2))
+model.add(BatchNormalization())
+
+model.add(Dense(32, activation='relu'))
+model.add(Dropout(0.2))
+
+model.add(Dense(2, activation='softmax'))
+
+opt = tf.keras.optimizers.Adam(lr=0.001, decay=1e-6)
+
+model.compile(loss='sparse_categorical_crossentropy', 
+             optimizer=opt,
+             metrics=['accuracy'])
+tensorboard = TensorBoard(log_dir=f'logs/{NAME}')
+
+filepath = "RNN_Final-{epoch:02d}-{val_acc:.3f}"  # unique file name that will include the epoch and the validation acc for that epoch
+checkpoint = ModelCheckpoint("models/{}.model".format(filepath, monitor='val_acc', verbose=1, save_best_only=True, mode='max')) # saves only the best ones
+
+history = model.fit(
+    train_x, train_y,
+    batch_size=BATCH_SIZE,
+    epochs=EPOCHS,
+    validation_data=(validation_x, validation_y),
+    callbacks=[tensorboard, checkpoint]
 )
