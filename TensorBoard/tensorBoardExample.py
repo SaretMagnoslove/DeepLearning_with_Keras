@@ -22,7 +22,7 @@ for dense_layer in dense_layers:
         for conv_layer in conv_layers:
             NAME = f"{conv_layer}-conv-{layer_size}-nodes-{dense_layer}-dense-512DO"
             # Adding TensorBoard
-            tensorboard = TensorBoard(log_dir=f'logs/{NAME}')
+            tensorboard = TensorBoard(log_dir=f'logss/{NAME}')
             # Building the Model
             model = Sequential()
 
